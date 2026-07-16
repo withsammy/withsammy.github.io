@@ -144,6 +144,88 @@ main {
   padding: 1.25rem;
 }
 
+.games-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.game-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.game-head h3 {
+  margin: 0;
+}
+
+.game-head p {
+  margin: 0.35rem 0 0;
+}
+
+.game-action,
+.control-btn {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(143, 183, 255, 0.18), rgba(95, 227, 194, 0.12));
+  color: var(--text);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.game-action {
+  padding: 0.8rem 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.game-shell {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(circle at center, rgba(143, 183, 255, 0.06), transparent 55%),
+    #060a0f;
+}
+
+.game-shell canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.game-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.game-meta p {
+  margin: 0;
+}
+
+.game-controls {
+  display: grid;
+  gap: 0.65rem;
+  place-items: center;
+}
+
+.control-row {
+  display: flex;
+  gap: 0.65rem;
+}
+
+.control-btn {
+  min-width: 3rem;
+  min-height: 3rem;
+  font-size: 1rem;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -191,5 +273,13 @@ main {
 
   .hero {
     min-height: auto;
+  }
+
+  .game-head {
+    flex-direction: column;
+  }
+
+  .game-action {
+    width: 100%;
   }
 }
