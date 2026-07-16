@@ -1,0 +1,195 @@
+:root {
+  --bg: #0b0f14;
+  --panel: #121923;
+  --panel-2: #182131;
+  --text: #e8edf5;
+  --muted: #9aa7b8;
+  --accent: #8fb7ff;
+  --accent-2: #5fe3c2;
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(143, 183, 255, 0.18), transparent 32%),
+    radial-gradient(circle at right top, rgba(95, 227, 194, 0.12), transparent 28%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 1rem;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  z-index: 20;
+  background: #fff;
+  color: #000;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+}
+
+.site-header,
+main,
+.site-footer {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(20px);
+  z-index: 10;
+}
+
+.brand h1 {
+  margin: 0.2rem 0 0;
+  font-size: clamp(1.5rem, 3vw, 3rem);
+  line-height: 1.1;
+}
+
+.eyebrow,
+.section-label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent-2);
+  font-size: 0.78rem;
+}
+
+.menu-toggle {
+  display: none;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.site-nav a {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+main {
+  padding: 1.5rem 0 4rem;
+}
+
+.section {
+  margin-top: 1.25rem;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.hero {
+  min-height: 40vh;
+  display: grid;
+  align-content: end;
+}
+
+.hero h2 {
+  margin: 0.5rem 0 0.75rem;
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  line-height: 1;
+  max-width: 12ch;
+}
+
+.hero p,
+.card p,
+.site-footer {
+  color: var(--muted);
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.25rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.chips span {
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.site-footer {
+  padding: 0 0 2rem;
+}
+
+@media (max-width: 768px) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+  }
+
+  .site-nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .site-nav.is-open {
+    display: flex;
+  }
+
+  .site-nav a {
+    width: 100%;
+  }
+
+  .hero {
+    min-height: auto;
+  }
+}
