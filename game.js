@@ -189,6 +189,7 @@
     state = 'running';
     setStatus('진행 중: 먹이를 먹으며 지렁이를 길게 키우세요.');
     updateButtons();
+    render();
     startLoop();
   }
 
@@ -210,6 +211,7 @@
     state = 'running';
     setStatus('진행 중: 먹이를 먹으며 지렁이를 길게 키우세요.');
     updateButtons();
+    render();
     startLoop();
   }
 
@@ -403,4 +405,5 @@
 
   resizeCanvas();
   resetGame();
+  render();
 })();
