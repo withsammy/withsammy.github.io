@@ -142,29 +142,42 @@
           </div>
         </div>
 
-        <div class="game-shell" aria-label="지렁이 게임 영역">
-          <canvas id="snake-canvas" width="400" height="400" aria-label="지렁이 게임 캔버스"></canvas>
-        </div>
+        <div class="game-layout">
+          <div class="game-main">
+            <div class="game-shell" aria-label="지렁이 게임 영역">
+              <canvas id="snake-canvas" width="400" height="400" aria-label="지렁이 게임 캔버스"></canvas>
+            </div>
 
-        <div class="game-meta">
-          <p class="game-status" id="game-status">대기 중: 시작을 눌러 게임을 시작하세요.</p>
-          <div class="score-row">
-            <p class="game-score">점수: <span id="game-score">0</span></p>
-            <p class="game-score">최고 점수: <span id="game-best">0</span></p>
-          </div>
-        </div>
+            <div class="game-meta">
+              <p class="game-status" id="game-status">대기 중: 시작을 눌러 게임을 시작하세요.</p>
+              <div class="score-row">
+                <p class="game-score">점수: <span id="game-score">0</span></p>
+                <p class="game-score">최고 점수: <span id="game-best">0</span></p>
+              </div>
+            </div>
 
-        <div class="game-controls" aria-label="터치 조작 버튼">
-          <div class="control-row top">
-            <button class="control-btn" type="button" data-direction="up" aria-label="위로 이동">▲</button>
+            <div class="game-controls" aria-label="터치 조작 버튼">
+              <div class="control-row top">
+                <button class="control-btn" type="button" data-direction="up" aria-label="위로 이동">▲</button>
+              </div>
+              <div class="control-row middle">
+                <button class="control-btn" type="button" data-direction="left" aria-label="왼쪽으로 이동">◀</button>
+                <button class="control-btn" type="button" data-direction="down" aria-label="아래로 이동">▼</button>
+                <button class="control-btn" type="button" data-direction="right" aria-label="오른쪽으로 이동">▶</button>
+              </div>
+            </div>
+            <p class="muted">모바일에서는 버튼을 탭하거나 화면을 스와이프해도 조작할 수 있습니다. 일시정지는 Space 또는 P, 재시작은 R로 가능합니다.</p>
           </div>
-          <div class="control-row middle">
-            <button class="control-btn" type="button" data-direction="left" aria-label="왼쪽으로 이동">◀</button>
-            <button class="control-btn" type="button" data-direction="down" aria-label="아래로 이동">▼</button>
-            <button class="control-btn" type="button" data-direction="right" aria-label="오른쪽으로 이동">▶</button>
-          </div>
+
+          <aside class="leaderboard" aria-label="순위판">
+            <div class="leaderboard-head">
+              <p class="section-label">Rank</p>
+              <h3>상위 3위</h3>
+              <p>점수 순서대로 상위 3개만 표시합니다.</p>
+            </div>
+            <ol id="leaderboard-list" class="leaderboard-list"></ol>
+          </aside>
         </div>
-        <p class="muted">모바일에서는 버튼을 탭하거나 화면을 스와이프해도 조작할 수 있습니다. 일시정지는 Space 또는 P, 재시작은 R로 가능합니다.</p>
       </div>
     </section>
 

@@ -5,17 +5,18 @@
   const statusText = document.getElementById('game-status');
   const scoreText = document.getElementById('game-score');
   const bestText = document.getElementById('game-best');
+  const leaderboardList = document.getElementById('leaderboard-list');
   const touchButtons = Array.from(document.querySelectorAll('.control-btn'));
 
-  if (!canvas || !startPauseButton || !restartButton || !statusText || !scoreText || !bestText) {
+  if (!canvas || !startPauseButton || !restartButton || !statusText || !scoreText || !bestText || !leaderboardList) {
     return;
   }
 
   const ctx = canvas.getContext('2d');
-  const gridSize = 20;
   const boardSize = 20;
   const tickMs = 110;
-  const storageKey = 'saemi-snake-best-score';
+  const leaderboardStorageKey = 'saemi-snake-leaderboard';
+  const legacyBestScoreKey = 'saemi-snake-best-score';
 
   let snake = [];
   let direction = { x: 1, y: 0 };
@@ -26,19 +27,66 @@
   let state = 'idle';
   let timer = null;
   let lastSwipePoint = null;
+  let leaderboard = [];
+  let editingIndex = null;
 
-  function readBestScore() {
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value);
+  }
+
+  function readNumber(value) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function randomNickname() {
+    const left = ['Blue', 'Mint', 'Nova', 'Pixel', 'Sunny', 'Velvet', 'Lucky', 'Echo', 'Ruby', 'Moon'];
+    const right = ['Fox', 'Leaf', 'Spark', 'Wave', 'Star', 'Cloud', 'Stone', 'Bird', 'Comet', 'Rose'];
+    const leftPick = left[Math.floor(Math.random() * left.length)];
+    const rightPick = right[Math.floor(Math.random() * right.length)];
+    const suffix = String(Math.floor(Math.random() * 900) + 100);
+    return `${leftPick}${rightPick}-${suffix}`;
+  }
+
+  function normalizeLeaderboard(entries) {
+    return entries
+      .filter((entry) => entry && typeof entry.name === 'string')
+      .map((entry) => ({
+        name: entry.name.trim() || randomNickname(),
+        score: readNumber(entry.score),
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  }
+
+  function loadLeaderboard() {
     try {
-      const value = Number(window.localStorage.getItem(storageKey) || 0);
-      return Number.isFinite(value) ? value : 0;
+      const raw = window.localStorage.getItem(leaderboardStorageKey);
+      const parsed = raw ? JSON.parse(raw) : [];
+      const normalized = Array.isArray(parsed) ? normalizeLeaderboard(parsed) : [];
+      if (normalized.length > 0) {
+        return normalized;
+      }
+      const legacyBest = readNumber(window.localStorage.getItem(legacyBestScoreKey));
+      return legacyBest > 0 ? [{ name: randomNickname(), score: legacyBest }] : [];
     } catch {
-      return 0;
+      return [];
     }
   }
 
-  function writeBestScore(value) {
+  function saveLeaderboard() {
     try {
-      window.localStorage.setItem(storageKey, String(value));
+      window.localStorage.setItem(leaderboardStorageKey, JSON.stringify(leaderboard));
+      window.localStorage.setItem(legacyBestScoreKey, String(leaderboard[0]?.score || 0));
     } catch {
       // Ignore storage failures in private modes.
     }
@@ -152,6 +200,62 @@
     }
   }
 
+  function renderLeaderboard() {
+    const items = leaderboard.slice(0, 3);
+    bestScore = items[0]?.score || 0;
+    setBestScore(bestScore);
+    leaderboardList.innerHTML = [0, 1, 2]
+      .map((index) => {
+        const entry = items[index];
+        if (!entry) {
+          return `
+            <li class="leaderboard-item">
+              <div class="leaderboard-row">
+                <span class="leaderboard-rank">${index + 1}</span>
+                <span class="leaderboard-empty">비어 있음</span>
+              </div>
+            </li>
+          `;
+        }
+
+        const isEditing = editingIndex === index;
+        return `
+          <li class="leaderboard-item${isEditing ? ' is-editing' : ''}" data-index="${index}">
+            <div class="leaderboard-view">
+              <div class="leaderboard-row">
+                <span class="leaderboard-rank">${index + 1}</span>
+                <button type="button" class="leaderboard-name" data-action="edit-name" data-index="${index}">${escapeHtml(entry.name)}</button>
+                <span class="leaderboard-score">${entry.score}점</span>
+              </div>
+            </div>
+            <form class="leaderboard-edit" data-index="${index}">
+              <input type="text" aria-label="순위 이름 수정" maxlength="18" value="${escapeAttr(entry.name)}">
+              <div class="leaderboard-edit-actions">
+                <button type="submit">저장</button>
+                <button type="button" data-action="cancel-name" data-index="${index}">취소</button>
+              </div>
+            </form>
+          </li>
+        `;
+      })
+      .join('');
+  }
+
+  function seedLeaderboard(scoreValue) {
+    const candidate = {
+      name: randomNickname(),
+      score: scoreValue,
+    };
+    const boundary = leaderboard[2]?.score ?? -Infinity;
+    if (leaderboard.length >= 3 && scoreValue < boundary) {
+      return false;
+    }
+    leaderboard = normalizeLeaderboard([...leaderboard, candidate]);
+    saveLeaderboard();
+    renderLeaderboard();
+    return true;
+  }
+
   function resetGame() {
     snake = [
       { x: 10, y: 10 },
@@ -218,12 +322,11 @@
   function finishGame() {
     state = 'gameover';
     clearTimer();
-    if (score > bestScore) {
-      bestScore = score;
-      setBestScore(bestScore);
-      writeBestScore(bestScore);
+    if (seedLeaderboard(score)) {
+      setStatus(`게임 오버: 점수 ${score}점, 상위 3위에 진입했습니다.`);
+    } else {
+      setStatus(`게임 오버: 점수 ${score}점, 상위 3위에는 들지 못했습니다.`);
     }
-    setStatus(`게임 오버: 점수 ${score}점, 최고 점수 ${bestScore}점`);
     updateButtons();
     render();
   }
@@ -376,11 +479,53 @@
     restartGame();
   }
 
-  bestScore = readBestScore();
-  setBestScore(bestScore);
+  function handleLeaderboardClick(event) {
+    const editButton = event.target.closest('[data-action="edit-name"]');
+    if (editButton) {
+      editingIndex = Number(editButton.dataset.index);
+      renderLeaderboard();
+      const currentRow = leaderboardList.querySelector(`.leaderboard-item[data-index="${editingIndex}"]`);
+      const input = currentRow?.querySelector('input');
+      input?.focus();
+      input?.select();
+      return;
+    }
+
+    const cancelButton = event.target.closest('[data-action="cancel-name"]');
+    if (cancelButton) {
+      editingIndex = null;
+      renderLeaderboard();
+    }
+  }
+
+  function handleLeaderboardSubmit(event) {
+    const form = event.target.closest('.leaderboard-edit');
+    if (!form) {
+      return;
+    }
+    event.preventDefault();
+    const row = form.closest('.leaderboard-item');
+    const index = Number(row?.dataset.index);
+    const input = form.querySelector('input');
+    const value = input?.value.trim();
+    if (!Number.isInteger(index) || !leaderboard[index]) {
+      return;
+    }
+    leaderboard[index].name = value || leaderboard[index].name || randomNickname();
+    leaderboard = normalizeLeaderboard(leaderboard);
+    saveLeaderboard();
+    editingIndex = null;
+    renderLeaderboard();
+  }
+
+  leaderboard = loadLeaderboard();
+  renderLeaderboard();
+  setBestScore(leaderboard[0]?.score || 0);
 
   startPauseButton.addEventListener('click', handleStartPause);
   restartButton.addEventListener('click', handleRestart);
+  leaderboardList.addEventListener('click', handleLeaderboardClick);
+  leaderboardList.addEventListener('submit', handleLeaderboardSubmit);
   window.addEventListener('resize', () => {
     resizeCanvas();
     render();
