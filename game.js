@@ -259,7 +259,9 @@
     };
 
     const hitWall = newHead.x < 0 || newHead.x >= boardSize || newHead.y < 0 || newHead.y >= boardSize;
-    const hitSelf = snake.some((part) => part.x === newHead.x && part.y === newHead.y);
+    const willEatFood = newHead.x === food.x && newHead.y === food.y;
+    const bodyToCheck = willEatFood ? snake : snake.slice(0, -1);
+    const hitSelf = bodyToCheck.some((part) => part.x === newHead.x && part.y === newHead.y);
 
     if (hitWall || hitSelf) {
       finishGame();
@@ -268,7 +270,7 @@
 
     snake.unshift(newHead);
 
-    if (newHead.x === food.x && newHead.y === food.y) {
+    if (willEatFood) {
       score += 10;
       setScore(score);
       food = randomCell(snake);
